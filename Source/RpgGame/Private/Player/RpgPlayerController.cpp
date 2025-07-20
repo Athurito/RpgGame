@@ -3,6 +3,7 @@
 #include "Player/RpgPlayerController.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "EnhancedInputSubsystems.h"
 #include "AbilitySystem/RpgAbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "UI/Widget/DamageTextComponent.h"
@@ -34,4 +35,18 @@ URpgAbilitySystemComponent* ARpgPlayerController::GetAsc()
 	}
 
 	return AuraAbilitySystemComponent;
+}
+
+void ARpgPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	// Add Input Mapping Contexts
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		for (UInputMappingContext* CurrentContext : DefaultMappingContexts)
+		{
+			Subsystem->AddMappingContext(CurrentContext, 0);
+		}
+	}
 }

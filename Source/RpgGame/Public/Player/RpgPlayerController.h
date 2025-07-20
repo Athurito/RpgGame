@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "RpgPlayerController.generated.h"
 
+class UInputMappingContext;
 class UDamageTextComponent;
 class URpgAbilitySystemComponent;
 /**
@@ -30,4 +31,14 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
+
+
+protected:
+
+	/** Input Mapping Contexts */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input", meta = (AllowPrivateAccess = "true"))
+	TArray<UInputMappingContext*> DefaultMappingContexts;
+
+	/** Input mapping context setup */
+	virtual void SetupInputComponent() override;
 };
