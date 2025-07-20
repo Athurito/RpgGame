@@ -32,15 +32,15 @@ UAnimMontage* ARpgCharacterBase::GetHitReactMontage_Implementation()
 
 void ARpgCharacterBase::Death()
 {
-	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	//Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	MulticastHandleDeath();
 }
 
 void ARpgCharacterBase::MulticastHandleDeath_Implementation()
 {
-	Weapon->SetSimulatePhysics(true);
-	Weapon->SetEnableGravity(true);
-	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	// Weapon->SetSimulatePhysics(true);
+	// Weapon->SetEnableGravity(true);
+	// Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
 	
 	GetMesh()->SetSimulatePhysics(true);
