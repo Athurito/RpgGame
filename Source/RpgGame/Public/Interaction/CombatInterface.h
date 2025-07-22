@@ -24,7 +24,7 @@ class RPGGAME_API ICombatInterface
 public:
 
 	virtual int32 GetPlayerLevel() const;
-	virtual FVector GetCombatSocketLocation();
+	virtual FVector GetSecondaryWeaponSocketLocation();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateFacingTarget(const FVector& Target);

@@ -3,7 +3,9 @@
 
 #include "Character/RpgCharacterBase.h"
 
+#include "RpgGame.h"
 #include "AbilitySystem/RpgAbilitySystemComponent.h"
+#include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
 
 
@@ -11,7 +13,34 @@ class URpgAbilitySystemComponent;
 // Sets default values
 ARpgCharacterBase::ARpgCharacterBase()
 {
-	
+	PrimaryActorTick.bCanEverTick = false;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
+
+
+	PrimaryWeapon = CreateDefaultSubobject<USkeletalMeshComponent>("PrimaryWeapon");
+	PrimaryWeapon->SetupAttachment(GetMesh(), FName("PrimaryWeaponSocket"));
+	PrimaryWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	PrimaryStartArrow = CreateDefaultSubobject<UArrowComponent>("PrimaryStart");
+	PrimaryStartArrow->SetupAttachment(PrimaryWeapon);
+
+	PrimaryEndArrow = CreateDefaultSubobject<UArrowComponent>("PrimaryEnd");
+	PrimaryEndArrow->SetupAttachment(PrimaryWeapon);
+
+	SecondaryWeapon = CreateDefaultSubobject<USkeletalMeshComponent>("SecondaryWeapon");
+	SecondaryWeapon->SetupAttachment(GetMesh(), FName("SecondaryWeaponSocket"));
+	SecondaryWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	SecondaryStartArrow = CreateDefaultSubobject<UArrowComponent>("SecondaryStart");
+	SecondaryStartArrow->SetupAttachment(SecondaryWeapon);
+
+	SecondaryEndArrow = CreateDefaultSubobject<UArrowComponent>("SecondaryEnd");
+	SecondaryEndArrow->SetupAttachment(SecondaryWeapon);
 }
 
 // Called when the game starts or when spawned
@@ -32,16 +61,19 @@ UAnimMontage* ARpgCharacterBase::GetHitReactMontage_Implementation()
 
 void ARpgCharacterBase::Death()
 {
-	//Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	SecondaryWeapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	MulticastHandleDeath();
 }
 
 void ARpgCharacterBase::MulticastHandleDeath_Implementation()
 {
-	// Weapon->SetSimulatePhysics(true);
-	// Weapon->SetEnableGravity(true);
-	// Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-
+	PrimaryWeapon->SetSimulatePhysics(true);
+	PrimaryWeapon->SetEnableGravity(true);
+	PrimaryWeapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	
+	SecondaryWeapon->SetSimulatePhysics(true);
+	SecondaryWeapon->SetEnableGravity(true);
+	SecondaryWeapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
@@ -52,10 +84,10 @@ void ARpgCharacterBase::MulticastHandleDeath_Implementation()
 	Dissolve();
 }
 
-FVector ARpgCharacterBase::GetCombatSocketLocation()
+FVector ARpgCharacterBase::GetSecondaryWeaponSocketLocation()
 {
-	check(Weapon);
-	return Weapon->GetSocketLocation(WeaponTipSocketName);
+	check(SecondaryWeapon);
+	return SecondaryWeapon->GetSocketLocation(WeaponTipSocketName);
 }
 
 void ARpgCharacterBase::InitAbilityActorInfo()
@@ -101,7 +133,7 @@ void ARpgCharacterBase::Dissolve()
 	if (IsValid(WeaponDissolveMaterialInstance))
 	{
 		UMaterialInstanceDynamic* DynamicMaterialInstance = UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance, this);
-		Weapon->SetMaterial(0, DynamicMaterialInstance);
+		SecondaryWeapon->SetMaterial(0, DynamicMaterialInstance);
 
 		StartWeaponDissolveTimeLine(DynamicMaterialInstance);
 	}
